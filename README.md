@@ -81,10 +81,39 @@ REMOTE_BASE = "/home/david/freerange" # Base path on server
 PORT        = 8420
 ```
 
+## WSL — persistent SD card mount
+
+By default WSL doesn't automount drives that appear after startup. To make `/mnt/h` persist across sessions, create a systemd mount unit:
+
+```bash
+sudo mkdir -p /mnt/h
+
+sudo tee /etc/systemd/system/mnt-h.mount > /dev/null << 'EOF'
+[Unit]
+Description=Mount Windows H: drive
+After=network.target
+
+[Mount]
+What=H:
+Where=/mnt/h
+Type=drvfs
+Options=metadata,uid=1000,gid=1000
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable mnt-h.mount
+sudo systemctl start mnt-h.mount
+```
+
+Requires `systemd=true` in `/etc/wsl.conf`. The SD card must be assigned H: in Windows before WSL starts.
+
 ## Usage
 
-1. Insert SD card — on WSL, mount it: `sudo mkdir -p /mnt/h && sudo mount -t drvfs H: /mnt/h`
+1. Insert SD card — ensure it is assigned H: in Windows
 2. Open `http://localhost:8420`
-3. Select camera type and set source path
+3. Select camera type and set source path to `/mnt/h`
 4. Click **Scan**
 5. Click **Transfer New**
