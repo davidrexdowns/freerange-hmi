@@ -81,6 +81,15 @@ REMOTE_BASE = "/home/david/freerange" # Base path on server
 PORT        = 8420
 ```
 
+## Transfer protocols
+
+| Leg | Protocol | Detail |
+|---|---|---|
+| SD card → WSL | None (local filesystem) | Windows exposes the drive to WSL via `drvfs`, a virtual filesystem driver built into WSL2. Files are read locally — no network involved. |
+| WSL → pi4-1 | SSH + rsync over SSH | SSH (port 22) opens the connection and creates the remote directory. rsync handles the file list and transfer over the same encrypted SSH tunnel. |
+
+No data touches the internet at any point. The only network hop is the encrypted SSH connection between your local machine and your local server.
+
 ## WSL — persistent SD card mount
 
 By default WSL doesn't automount drives that appear after startup. To make `/mnt/h` persist across sessions, create a systemd mount unit:
